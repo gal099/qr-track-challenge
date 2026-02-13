@@ -6,6 +6,9 @@
 import { NextResponse } from 'next/server'
 import { getAllQRCodes } from '@/lib/db'
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const qrCodes = await getAllQRCodes()

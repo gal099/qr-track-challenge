@@ -113,6 +113,7 @@ export async function createScan(input: CreateScanInput): Promise<Scan> {
  * Get all QR codes with total scan counts (excludes soft-deleted records)
  */
 export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
+  console.log('[DB] getAllQRCodes() called at', new Date().toISOString())
   const result = await pool.query(
     `SELECT
        qr.id,

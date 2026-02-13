@@ -32,10 +32,21 @@ export function parseUserAgent(userAgentString: string): {
 /**
  * Get geolocation from Vercel Edge headers
  * Falls back to unknown if headers are not available
+ * City names are decoded from URL encoding (Vercel sends them encoded)
  */
 export function getGeolocationFromHeaders(headers: Headers) {
   const country = headers.get('x-vercel-ip-country') || undefined
-  const city = headers.get('x-vercel-ip-city') || undefined
+  const rawCity = headers.get('x-vercel-ip-city') || undefined
+
+  let city = rawCity
+  if (rawCity) {
+    try {
+      city = decodeURIComponent(rawCity)
+    } catch {
+      // Keep original value if decoding fails
+      city = rawCity
+    }
+  }
 
   return { country, city }
 }

@@ -121,3 +121,18 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing scan count aggregation with LEFT JOIN queries
     - When working with node-postgres (pg) library type conversions
     - When creating E2E tests for analytics data accuracy
+
+- app_docs/feature-350ce5e4-admin-panel-qr-management.md
+  - Conditions:
+    - When working with admin panel authentication or authorization
+    - When implementing or modifying password-protected routes
+    - When working with session management or cookie-based authentication
+    - When implementing rate limiting for authentication attempts
+    - When working with soft delete functionality in the database
+    - When modifying QR code deletion features
+    - When troubleshooting deleted QR code filtering in queries
+    - When working with the /admin or /admin/dashboard routes
+    - When implementing delete confirmation modals or UI feedback
+    - When working with toast notifications for success/error messages
+    - When creating E2E tests for admin functionality
+    - When debugging deleted_at column queries or database migrations

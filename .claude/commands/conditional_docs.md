@@ -39,3 +39,14 @@ This prompt helps you determine what documentation you should read based on the 
     - When adding or updating QR code tests
     - When working with color customization features
     - When debugging QR code download functionality
+
+- app_docs/feature-07707eb7-url-shortening-redirect.md
+  - Conditions:
+    - When working with URL shortening or redirect functionality
+    - When implementing or modifying the /r/[shortCode] route
+    - When adding tests for redirect routes or scan tracking
+    - When troubleshooting redirect issues or 404 errors
+    - When working with scan event tracking or analytics
+    - When implementing user agent parsing or device detection
+    - When working with geolocation extraction from headers
+    - When debugging IP address handling or privacy features

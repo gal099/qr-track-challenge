@@ -2,13 +2,16 @@
 
 ## 🚀 Current Sprint (Priority 1)
 
-### In Progress
+### Completed
 - [x] #14 - Fix: Race condition in ADW plan file verification
-- [ ] #12 - UI: Low contrast text (placeholders, buttons)
-- [ ] #13 - Bug: Analytics dashboard shows incorrect scan count
+- [x] #12 - UI: Low contrast text (placeholders, buttons)
+- [x] #13 - Bug: Analytics dashboard shows incorrect scan count
+
+### In Progress
+- [ ] #19 - Feature: Admin panel with QR delete functionality (password-protected)
 
 ### Ready to Start
-- [ ] #19 - Feature: Admin panel with QR delete functionality (password-protected)
+- [ ] #20 - Bug: Geographic Distribution displays URL-encoded city names
 
 ---
 
@@ -94,8 +97,9 @@
 ### Active Bugs
 - [x] #14 - Race condition in PLAN phase (fixed, merged)
 - [x] #15 - Backtick parsing in plan file path (fixed in #14, closed)
-- [ ] #12 - Low contrast text accessibility issue
-- [ ] #13 - Analytics scan count showing 0 instead of actual count
+- [x] #12 - Low contrast text accessibility issue (fixed, merged)
+- [x] #13 - Analytics scan count showing 0 instead of actual count (fixed, merged)
+- [ ] #20 - Geographic Distribution displays URL-encoded city names
 
 ### Tech Debt
 - [ ] Add comprehensive error handling to API routes

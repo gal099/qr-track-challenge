@@ -13,9 +13,9 @@ export async function GET(
   try {
     const qrCodeId = parseInt(params.qrCodeId)
 
-    if (isNaN(qrCodeId)) {
+    if (isNaN(qrCodeId) || qrCodeId <= 0) {
       return NextResponse.json(
-        { success: false, error: 'Invalid QR code ID' },
+        { success: false, error: 'Invalid QR code ID. Please provide a valid numeric ID.' },
         { status: 400 }
       )
     }
@@ -25,7 +25,7 @@ export async function GET(
 
     if (!qrCode) {
       return NextResponse.json(
-        { success: false, error: 'QR code not found' },
+        { success: false, error: 'QR code not found. It may have been deleted or the ID is incorrect.' },
         { status: 404 }
       )
     }
@@ -48,8 +48,13 @@ export async function GET(
   } catch (error) {
     console.error('Analytics fetch error:', error)
 
+    const errorMessage =
+      error instanceof Error && error.message.includes('connect')
+        ? 'Database connection error. Please try again later.'
+        : 'Failed to fetch analytics. Please try again.'
+
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch analytics' },
+      { success: false, error: errorMessage },
       { status: 500 }
     )
   }

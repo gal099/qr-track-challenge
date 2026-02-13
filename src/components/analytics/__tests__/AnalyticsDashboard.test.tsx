@@ -86,11 +86,13 @@ describe('AnalyticsDashboard', () => {
   })
 
   describe('Loading state', () => {
-    it('should render loading state initially', () => {
+    it('should render loading skeleton state initially', () => {
       mockFetch.mockReturnValue(new Promise(() => {}))
       render(<AnalyticsDashboard qrCodeId="1" />)
 
-      expect(screen.getByText('Loading analytics...')).toBeInTheDocument()
+      // Check for skeleton loading indicators (animate-pulse elements)
+      const skeletonElements = document.querySelectorAll('.animate-pulse')
+      expect(skeletonElements.length).toBeGreaterThan(0)
     })
   })
 

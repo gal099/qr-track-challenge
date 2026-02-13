@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import { HexColorPicker } from 'react-colorful'
 import QRCode from 'qrcode'
 import { isValidUrl } from '@/lib/utils'
@@ -20,7 +21,26 @@ export default function QRGenerator() {
   const [showBgPicker, setShowBgPicker] = useState(false)
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleCopy = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }, [])
 
   const generatePreview = useCallback(async () => {
     if (!targetUrl || !isValidUrl(targetUrl)) {
@@ -212,10 +232,13 @@ export default function QRGenerator() {
                 </span>
               </div>
             ) : previewDataUrl ? (
-              <img
+              <Image
                 src={previewDataUrl}
                 alt="QR Code Preview"
+                width={256}
+                height={256}
                 className="rounded-lg border border-gray-300 dark:border-gray-600"
+                unoptimized
               />
             ) : (
               <p className="text-center text-sm text-gray-500 dark:text-gray-400">
@@ -229,8 +252,11 @@ export default function QRGenerator() {
         <button
           onClick={handleGenerate}
           disabled={loading || !targetUrl}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
         >
+          {loading && (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          )}
           {loading ? 'Generating...' : 'Generate QR Code'}
         </button>
 
@@ -245,10 +271,13 @@ export default function QRGenerator() {
         {result && (
           <div className="space-y-4 rounded-lg border border-gray-200 p-6 dark:border-gray-700">
             <div className="flex justify-center">
-              <img
+              <Image
                 src={result.qrCodeDataUrl}
                 alt="Generated QR Code"
+                width={512}
+                height={512}
                 className="rounded-lg border border-gray-300 dark:border-gray-600"
+                unoptimized
               />
             </div>
 
@@ -265,10 +294,14 @@ export default function QRGenerator() {
                     className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                   <button
-                    onClick={() => navigator.clipboard.writeText(result.shortUrl)}
-                    className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+                    onClick={() => handleCopy(result.shortUrl)}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      copied
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                    }`}
                   >
-                    Copy
+                    {copied ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
               </div>

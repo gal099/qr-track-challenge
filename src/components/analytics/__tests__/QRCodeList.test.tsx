@@ -32,11 +32,13 @@ describe('QRCodeList', () => {
   })
 
   describe('Loading state', () => {
-    it('should render loading state initially', () => {
+    it('should render loading skeleton state initially', () => {
       mockFetch.mockReturnValue(new Promise(() => {}))
       render(<QRCodeList />)
 
-      expect(screen.getByText('Loading QR codes...')).toBeInTheDocument()
+      // Check for skeleton loading indicators (animate-pulse elements)
+      const skeletonElements = document.querySelectorAll('.animate-pulse')
+      expect(skeletonElements.length).toBeGreaterThan(0)
     })
   })
 

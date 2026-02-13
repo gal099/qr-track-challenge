@@ -1,0 +1,40 @@
+# Vercel Ignore File
+# Files and directories to exclude from deployment
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+
+# Documentation and specs
+specs/
+app_docs/
+docs/drafts/
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+__tests__/
+coverage/
+
+# Development configuration
+.eslintcache
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Other
+README.md
+CONTRIBUTING.md
+LICENSE

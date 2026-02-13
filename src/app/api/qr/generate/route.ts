@@ -5,13 +5,22 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import QRCode from 'qrcode'
+import { ZodError } from 'zod'
 import { generateQRCodeSchema } from '@/lib/validations'
 import { createQRCode } from '@/lib/db'
 import { generateUniqueShortCode } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
 
     // Validate input
     const validatedData = generateQRCodeSchema.parse(body)
@@ -54,15 +63,16 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('QR generation error:', error)
 
-    if (error instanceof Error && error.name === 'ZodError') {
+    if (error instanceof ZodError) {
+      const messages = error.errors.map((e) => e.message).join(', ')
       return NextResponse.json(
-        { success: false, error: 'Invalid input data' },
+        { success: false, error: messages || 'Invalid input data' },
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { success: false, error: 'Failed to generate QR code' },
+      { success: false, error: 'Failed to generate QR code. Please try again.' },
       { status: 500 }
     )
   }

@@ -42,6 +42,8 @@ export async function GET(
           target_url: qrCode.target_url,
           author: qrCode.author,
           created_at: qrCode.created_at,
+          fg_color: qrCode.fg_color,
+          bg_color: qrCode.bg_color,
         },
         analytics,
       },

@@ -21,6 +21,11 @@ jest.mock('recharts', () => ({
   ),
 }))
 
+// Mock qrcode library
+jest.mock('qrcode', () => ({
+  toDataURL: jest.fn().mockResolvedValue('data:image/png;base64,mockQRCode'),
+}))
+
 // Mock the fetch API
 const mockFetch = jest.fn()
 global.fetch = mockFetch
@@ -35,6 +40,9 @@ const mockAnalyticsData = {
     short_code: 'abc123',
     target_url: 'https://example.com',
     created_at: '2024-01-15T10:00:00.000Z',
+    author: 'Test User',
+    fg_color: '#000000',
+    bg_color: '#FFFFFF',
   },
   analytics: {
     total_scans: 150,
@@ -384,6 +392,97 @@ describe('AnalyticsDashboard', () => {
       await waitFor(() => {
         expect(screen.getByText('0')).toBeInTheDocument()
         expect(screen.getByText(/no scans yet/i)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('QR Thumbnail', () => {
+    it('should render QR thumbnail in header card', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: mockAnalyticsData,
+          }),
+      })
+
+      render(<AnalyticsDashboard qrCodeId="1" />)
+
+      await waitFor(() => {
+        const qrThumbnail = screen.getByAltText('QR Code')
+        expect(qrThumbnail).toBeInTheDocument()
+      })
+    })
+
+    it('should have download button with aria-label', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: mockAnalyticsData,
+          }),
+      })
+
+      render(<AnalyticsDashboard qrCodeId="1" />)
+
+      await waitFor(() => {
+        const downloadButton = screen.getByRole('button', { name: /download qr code/i })
+        expect(downloadButton).toBeInTheDocument()
+      })
+    })
+
+    it('should trigger download when QR thumbnail is clicked', async () => {
+      const QRCode = require('qrcode')
+      QRCode.toDataURL.mockClear()
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: mockAnalyticsData,
+          }),
+      })
+
+      render(<AnalyticsDashboard qrCodeId="1" />)
+
+      await waitFor(() => {
+        const downloadButton = screen.getByRole('button', { name: /download qr code/i })
+        expect(downloadButton).toBeInTheDocument()
+      })
+
+      const downloadButton = screen.getByRole('button', { name: /download qr code/i })
+      fireEvent.click(downloadButton)
+
+      await waitFor(() => {
+        // toDataURL is called once for thumbnail, once for download
+        expect(QRCode.toDataURL).toHaveBeenCalled()
+      })
+    })
+
+    it('should generate QR code with colors from API', async () => {
+      const QRCode = require('qrcode')
+      QRCode.toDataURL.mockClear()
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: mockAnalyticsData,
+          }),
+      })
+
+      render(<AnalyticsDashboard qrCodeId="1" />)
+
+      await waitFor(() => {
+        // Check that toDataURL was called with correct color options for thumbnail
+        expect(QRCode.toDataURL).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            color: { dark: '#000000', light: '#FFFFFF' },
+          })
+        )
       })
     })
   })

@@ -90,3 +90,12 @@ This prompt helps you determine what documentation you should read based on the 
     - When debugging production database connection issues
     - When separating client-safe utilities from server-only utilities
     - When working with src/lib/utils.ts or src/lib/utils-client.ts
+
+- app_docs/feature-79ac0b83-plan-file-retry.md
+  - Conditions:
+    - When working with ADW plan file verification logic
+    - When implementing retry mechanisms for file system operations
+    - When troubleshooting race conditions in file existence checks
+    - When debugging "Plan file does not exist" errors in adws/adw_plan.py
+    - When adding polling or retry logic to ADW workflows
+    - When handling filesystem synchronization delays

@@ -250,80 +250,95 @@ describe('parseUserAgent', () => {
 })
 
 describe('getGeolocationFromHeaders', () => {
-  describe('city name decoding', () => {
-    it('should decode URL-encoded city names with spaces', () => {
-      const headers = new Headers({
-        'x-vercel-ip-country': 'AR',
-        'x-vercel-ip-city': 'Tres%20Arroyos',
-      })
-      const result = getGeolocationFromHeaders(headers)
-      expect(result.city).toBe('Tres Arroyos')
-      expect(result.country).toBe('AR')
-    })
+  // Helper function to create Headers object
+  const createHeaders = (
+    city?: string,
+    country?: string
+  ): Headers => {
+    const headers = new Headers()
+    if (city !== undefined) headers.set('x-vercel-ip-city', city)
+    if (country !== undefined) headers.set('x-vercel-ip-country', country)
+    return headers
+  }
 
+  describe('city name decoding', () => {
     it('should decode URL-encoded city names with special characters', () => {
-      const headers = new Headers({
-        'x-vercel-ip-country': 'AR',
-        'x-vercel-ip-city': 'General%20Fern%C3%A1ndez%20Oro',
-      })
+      const headers = createHeaders('General%20Fern%C3%A1ndez%20Oro', 'AR')
       const result = getGeolocationFromHeaders(headers)
       expect(result.city).toBe('General Fernández Oro')
       expect(result.country).toBe('AR')
     })
 
-    it('should pass through simple city names unchanged', () => {
-      const headers = new Headers({
-        'x-vercel-ip-country': 'US',
-        'x-vercel-ip-city': 'Boston',
-      })
+    it('should decode URL-encoded city names with spaces', () => {
+      const headers = createHeaders('Tres%20Arroyos', 'AR')
       const result = getGeolocationFromHeaders(headers)
-      expect(result.city).toBe('Boston')
-      expect(result.country).toBe('US')
+      expect(result.city).toBe('Tres Arroyos')
     })
 
-    it('should return undefined for missing city header', () => {
-      const headers = new Headers({
-        'x-vercel-ip-country': 'US',
-      })
+    it('should decode URL-encoded city with multiple special characters', () => {
+      const headers = createHeaders('S%C3%A3o%20Paulo', 'BR')
       const result = getGeolocationFromHeaders(headers)
-      expect(result.city).toBeUndefined()
-      expect(result.country).toBe('US')
+      expect(result.city).toBe('São Paulo')
     })
 
-    it('should return undefined for missing country header', () => {
-      const headers = new Headers({
-        'x-vercel-ip-city': 'Boston',
-      })
+    it('should decode city names with multiple encoded characters', () => {
+      const headers = createHeaders('M%C3%BCnchen', 'DE')
       const result = getGeolocationFromHeaders(headers)
-      expect(result.city).toBe('Boston')
-      expect(result.country).toBeUndefined()
+      expect(result.city).toBe('München')
     })
 
-    it('should return undefined for both headers missing', () => {
-      const headers = new Headers()
+    it('should pass through simple city names without encoding', () => {
+      const headers = createHeaders('Tokyo', 'JP')
       const result = getGeolocationFromHeaders(headers)
-      expect(result.city).toBeUndefined()
-      expect(result.country).toBeUndefined()
+      expect(result.city).toBe('Tokyo')
+    })
+
+    it('should handle city names that are already decoded', () => {
+      const headers = createHeaders('New York', 'US')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('New York')
+    })
+
+    it('should handle malformed encoding gracefully', () => {
+      // Invalid percent encoding should return original value
+      const headers = createHeaders('Invalid%Encoding', 'US')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Invalid%Encoding')
     })
 
     it('should handle malformed URI encoding gracefully', () => {
-      const headers = new Headers({
-        'x-vercel-ip-country': 'AR',
-        'x-vercel-ip-city': '%E0%A4%A',  // Invalid UTF-8 sequence
-      })
+      const headers = createHeaders('%E0%A4%A', 'AR')
       const result = getGeolocationFromHeaders(headers)
       // Should return original value when decoding fails
       expect(result.city).toBe('%E0%A4%A')
       expect(result.country).toBe('AR')
     })
 
-    it('should decode city names with multiple encoded characters', () => {
-      const headers = new Headers({
-        'x-vercel-ip-country': 'DE',
-        'x-vercel-ip-city': 'M%C3%BCnchen',  // München
-      })
+    it('should return undefined for missing city header', () => {
+      const headers = createHeaders(undefined, 'US')
       const result = getGeolocationFromHeaders(headers)
-      expect(result.city).toBe('München')
+      expect(result.city).toBeUndefined()
+    })
+
+    it('should return undefined for both when no headers are set', () => {
+      const headers = new Headers()
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBeUndefined()
+      expect(result.country).toBeUndefined()
+    })
+  })
+
+  describe('country handling', () => {
+    it('should return country code without modification', () => {
+      const headers = createHeaders('Buenos%20Aires', 'AR')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.country).toBe('AR')
+    })
+
+    it('should return undefined for missing country header', () => {
+      const headers = createHeaders('Tokyo')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.country).toBeUndefined()
     })
   })
 })

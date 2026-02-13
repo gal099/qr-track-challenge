@@ -50,3 +50,16 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing user agent parsing or device detection
     - When working with geolocation extraction from headers
     - When debugging IP address handling or privacy features
+
+- app_docs/feature-5d00a77d-analytics-dashboard.md
+  - Conditions:
+    - When working with analytics dashboard features
+    - When implementing or modifying the /analytics route or pages
+    - When working with QR code listing or summary views
+    - When implementing data visualization or charts with Recharts
+    - When adding share link or clipboard functionality
+    - When working with the QRCodeList or AnalyticsDashboard components
+    - When troubleshooting analytics data aggregation or scan counting
+    - When implementing navigation between QR list and individual analytics
+    - When working with the /api/qr/list endpoint
+    - When debugging getAllQRCodes database queries

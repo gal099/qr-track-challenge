@@ -1,9 +1,9 @@
 /**
  * Database connection and query utilities
- * Using @vercel/postgres for Vercel Postgres integration
+ * Using pg (node-postgres) for Supabase Postgres integration
  */
 
-import { sql } from '@vercel/postgres'
+import { Pool } from 'pg'
 import type {
   QRCode,
   QRCodeWithScans,
@@ -13,6 +13,12 @@ import type {
   ScanAnalytics,
 } from '@/types/database'
 
+// Create a connection pool for serverless environment
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false },
+})
+
 /**
  * Create a new QR code record
  */
@@ -21,11 +27,12 @@ export async function createQRCode(
 ): Promise<QRCode> {
   const { short_code, target_url, fg_color = '#000000', bg_color = '#FFFFFF' } = input
 
-  const result = await sql`
-    INSERT INTO qr_codes (short_code, target_url, fg_color, bg_color)
-    VALUES (${short_code}, ${target_url}, ${fg_color}, ${bg_color})
-    RETURNING *
-  `
+  const result = await pool.query(
+    `INSERT INTO qr_codes (short_code, target_url, fg_color, bg_color)
+     VALUES ($1, $2, $3, $4)
+     RETURNING *`,
+    [short_code, target_url, fg_color, bg_color]
+  )
 
   return result.rows[0] as QRCode
 }
@@ -36,9 +43,10 @@ export async function createQRCode(
 export async function getQRCodeByShortCode(
   shortCode: string
 ): Promise<QRCode | null> {
-  const result = await sql`
-    SELECT * FROM qr_codes WHERE short_code = ${shortCode} LIMIT 1
-  `
+  const result = await pool.query(
+    'SELECT * FROM qr_codes WHERE short_code = $1 LIMIT 1',
+    [shortCode]
+  )
 
   return result.rows.length > 0 ? (result.rows[0] as QRCode) : null
 }
@@ -47,9 +55,10 @@ export async function getQRCodeByShortCode(
  * Get QR code by ID
  */
 export async function getQRCodeById(id: number): Promise<QRCode | null> {
-  const result = await sql`
-    SELECT * FROM qr_codes WHERE id = ${id} LIMIT 1
-  `
+  const result = await pool.query(
+    'SELECT * FROM qr_codes WHERE id = $1 LIMIT 1',
+    [id]
+  )
 
   return result.rows.length > 0 ? (result.rows[0] as QRCode) : null
 }
@@ -58,9 +67,10 @@ export async function getQRCodeById(id: number): Promise<QRCode | null> {
  * Check if short code exists
  */
 export async function shortCodeExists(shortCode: string): Promise<boolean> {
-  const result = await sql`
-    SELECT 1 FROM qr_codes WHERE short_code = ${shortCode} LIMIT 1
-  `
+  const result = await pool.query(
+    'SELECT 1 FROM qr_codes WHERE short_code = $1 LIMIT 1',
+    [shortCode]
+  )
 
   return result.rows.length > 0
 }
@@ -79,16 +89,22 @@ export async function createScan(input: CreateScanInput): Promise<Scan> {
     browser,
   } = input
 
-  const result = await sql`
-    INSERT INTO scans (
-      qr_code_id, user_agent, ip_address, country, city, device_type, browser
-    )
-    VALUES (
-      ${qr_code_id}, ${user_agent || null}, ${ip_address || null},
-      ${country || null}, ${city || null}, ${device_type || null}, ${browser || null}
-    )
-    RETURNING *
-  `
+  const result = await pool.query(
+    `INSERT INTO scans (
+       qr_code_id, user_agent, ip_address, country, city, device_type, browser
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [
+      qr_code_id,
+      user_agent || null,
+      ip_address || null,
+      country || null,
+      city || null,
+      device_type || null,
+      browser || null,
+    ]
+  )
 
   return result.rows[0] as Scan
 }
@@ -97,20 +113,20 @@ export async function createScan(input: CreateScanInput): Promise<Scan> {
  * Get all QR codes with total scan counts
  */
 export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
-  const result = await sql`
-    SELECT
-      qr.id,
-      qr.short_code,
-      qr.target_url,
-      qr.fg_color,
-      qr.bg_color,
-      qr.created_at,
-      COALESCE(COUNT(s.id), 0) as total_scans
-    FROM qr_codes qr
-    LEFT JOIN scans s ON qr.id = s.qr_code_id
-    GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.created_at
-    ORDER BY qr.created_at DESC
-  `
+  const result = await pool.query(
+    `SELECT
+       qr.id,
+       qr.short_code,
+       qr.target_url,
+       qr.fg_color,
+       qr.bg_color,
+       qr.created_at,
+       COALESCE(COUNT(s.id), 0) as total_scans
+     FROM qr_codes qr
+     LEFT JOIN scans s ON qr.id = s.qr_code_id
+     GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.created_at
+     ORDER BY qr.created_at DESC`
+  )
 
   return result.rows.map((row) => ({
     id: row.id,
@@ -130,55 +146,60 @@ export async function getQRCodeAnalytics(
   qrCodeId: number
 ): Promise<ScanAnalytics> {
   // Total scans
-  const totalResult = await sql`
-    SELECT COUNT(*) as total_scans FROM scans WHERE qr_code_id = ${qrCodeId}
-  `
+  const totalResult = await pool.query(
+    'SELECT COUNT(*) as total_scans FROM scans WHERE qr_code_id = $1',
+    [qrCodeId]
+  )
 
   // Scans by date (daily)
-  const dateResult = await sql`
-    SELECT
-      DATE(scanned_at) as date,
-      COUNT(*) as count
-    FROM scans
-    WHERE qr_code_id = ${qrCodeId}
-    GROUP BY DATE(scanned_at)
-    ORDER BY date ASC
-  `
+  const dateResult = await pool.query(
+    `SELECT
+       DATE(scanned_at) as date,
+       COUNT(*) as count
+     FROM scans
+     WHERE qr_code_id = $1
+     GROUP BY DATE(scanned_at)
+     ORDER BY date ASC`,
+    [qrCodeId]
+  )
 
   // Device breakdown
-  const deviceResult = await sql`
-    SELECT
-      COALESCE(device_type, 'unknown') as device_type,
-      COUNT(*) as count
-    FROM scans
-    WHERE qr_code_id = ${qrCodeId}
-    GROUP BY device_type
-  `
+  const deviceResult = await pool.query(
+    `SELECT
+       COALESCE(device_type, 'unknown') as device_type,
+       COUNT(*) as count
+     FROM scans
+     WHERE qr_code_id = $1
+     GROUP BY device_type`,
+    [qrCodeId]
+  )
 
   // Browser breakdown
-  const browserResult = await sql`
-    SELECT
-      COALESCE(browser, 'unknown') as browser,
-      COUNT(*) as count
-    FROM scans
-    WHERE qr_code_id = ${qrCodeId}
-    GROUP BY browser
-    ORDER BY count DESC
-    LIMIT 10
-  `
+  const browserResult = await pool.query(
+    `SELECT
+       COALESCE(browser, 'unknown') as browser,
+       COUNT(*) as count
+     FROM scans
+     WHERE qr_code_id = $1
+     GROUP BY browser
+     ORDER BY count DESC
+     LIMIT 10`,
+    [qrCodeId]
+  )
 
   // Location breakdown
-  const locationResult = await sql`
-    SELECT
-      COALESCE(country, 'unknown') as country,
-      COALESCE(city, 'unknown') as city,
-      COUNT(*) as count
-    FROM scans
-    WHERE qr_code_id = ${qrCodeId}
-    GROUP BY country, city
-    ORDER BY count DESC
-    LIMIT 20
-  `
+  const locationResult = await pool.query(
+    `SELECT
+       COALESCE(country, 'unknown') as country,
+       COALESCE(city, 'unknown') as city,
+       COUNT(*) as count
+     FROM scans
+     WHERE qr_code_id = $1
+     GROUP BY country, city
+     ORDER BY count DESC
+     LIMIT 20`,
+    [qrCodeId]
+  )
 
   return {
     total_scans: parseInt(totalResult.rows[0]?.total_scans || '0'),

@@ -15,7 +15,6 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.5.1",
     "date-fns": "^3.3.1",
     "dotenv": "^17.3.1",
     "nanoid": "^5.0.4",
@@ -35,6 +34,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.11.0",
+    "@types/pg": "^8.16.0",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",

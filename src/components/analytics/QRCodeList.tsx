@@ -10,6 +10,7 @@ interface QRCodeSummary {
   target_url: string
   fg_color: string
   bg_color: string
+  author: string
   created_at: string
   total_scans: number
 }
@@ -123,10 +124,13 @@ export default function QRCodeList() {
           </div>
 
           <p
-            className="mb-4 text-sm text-gray-600 dark:text-gray-400"
+            className="mb-2 text-sm text-gray-600 dark:text-gray-400"
             title={qrCode.target_url}
           >
             {truncateUrl(qrCode.target_url)}
+          </p>
+          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+            Created by: {qrCode.author}
           </p>
 
           <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">

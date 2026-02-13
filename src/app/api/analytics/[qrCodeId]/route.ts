@@ -40,6 +40,7 @@ export async function GET(
           id: qrCode.id,
           short_code: qrCode.short_code,
           target_url: qrCode.target_url,
+          author: qrCode.author,
           created_at: qrCode.created_at,
         },
         analytics,

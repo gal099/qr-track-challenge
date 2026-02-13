@@ -8,6 +8,8 @@ import { isValidUrl } from '@/lib/utils-client'
 
 export default function QRGenerator() {
   const [targetUrl, setTargetUrl] = useState('')
+  const [author, setAuthor] = useState('')
+  const [authorError, setAuthorError] = useState('')
   const [fgColor, setFgColor] = useState('#000000')
   const [bgColor, setBgColor] = useState('#FFFFFF')
   const [loading, setLoading] = useState(false)
@@ -79,12 +81,45 @@ export default function QRGenerator() {
     }
   }, [generatePreview])
 
+  const validateAuthor = (value: string): string => {
+    const trimmed = value.trim()
+    if (!trimmed) {
+      return 'Author is required'
+    }
+    if (trimmed.length < 2) {
+      return 'Author must be at least 2 characters'
+    }
+    if (trimmed.length > 30) {
+      return 'Author must be at most 30 characters'
+    }
+    if (!/^[a-zA-Z0-9\s]+$/.test(trimmed)) {
+      return 'Author can only contain letters, numbers, and spaces'
+    }
+    return ''
+  }
+
+  const handleAuthorChange = (value: string) => {
+    setAuthor(value)
+    const error = validateAuthor(value)
+    setAuthorError(error)
+  }
+
+  const isAuthorValid = author.trim().length >= 2 &&
+    author.trim().length <= 30 &&
+    /^[a-zA-Z0-9\s]+$/.test(author.trim())
+
   const handleGenerate = async () => {
     setError('')
     setResult(null)
 
     if (!targetUrl) {
       setError('Please enter a URL')
+      return
+    }
+
+    const authorValidationError = validateAuthor(author)
+    if (authorValidationError) {
+      setAuthorError(authorValidationError)
       return
     }
 
@@ -96,6 +131,7 @@ export default function QRGenerator() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           target_url: targetUrl,
+          author: author.trim(),
           fg_color: fgColor,
           bg_color: bgColor,
         }),
@@ -147,6 +183,34 @@ export default function QRGenerator() {
             placeholder="https://example.com"
             className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
           />
+        </div>
+
+        {/* Author Input */}
+        <div>
+          <label
+            htmlFor="author"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            Author
+          </label>
+          <input
+            id="author"
+            type="text"
+            value={author}
+            onChange={(e) => handleAuthorChange(e.target.value)}
+            placeholder="Your name or identifier"
+            maxLength={30}
+            className={`w-full rounded-lg border px-4 py-2 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 ${
+              authorError
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600'
+            }`}
+          />
+          {authorError && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {authorError}
+            </p>
+          )}
         </div>
 
         {/* Color Pickers */}
@@ -251,7 +315,7 @@ export default function QRGenerator() {
         {/* Generate Button */}
         <button
           onClick={handleGenerate}
-          disabled={loading || !targetUrl}
+          disabled={loading || !targetUrl || !isAuthorValid}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
         >
           {loading && (

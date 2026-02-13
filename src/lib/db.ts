@@ -25,13 +25,13 @@ const pool = new Pool({
 export async function createQRCode(
   input: CreateQRCodeInput & { short_code: string }
 ): Promise<QRCode> {
-  const { short_code, target_url, fg_color = '#000000', bg_color = '#FFFFFF' } = input
+  const { short_code, target_url, fg_color = '#000000', bg_color = '#FFFFFF', author } = input
 
   const result = await pool.query(
-    `INSERT INTO qr_codes (short_code, target_url, fg_color, bg_color)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO qr_codes (short_code, target_url, fg_color, bg_color, author)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [short_code, target_url, fg_color, bg_color]
+    [short_code, target_url, fg_color, bg_color, author]
   )
 
   return result.rows[0] as QRCode
@@ -120,13 +120,14 @@ export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
        qr.target_url,
        qr.fg_color,
        qr.bg_color,
+       qr.author,
        qr.created_at,
        qr.deleted_at,
        COALESCE(COUNT(s.id), 0)::INTEGER as total_scans
      FROM qr_codes qr
      LEFT JOIN scans s ON qr.id = s.qr_code_id
      WHERE qr.deleted_at IS NULL
-     GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.created_at, qr.deleted_at
+     GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.author, qr.created_at, qr.deleted_at
      ORDER BY qr.created_at DESC`
   )
 
@@ -136,6 +137,7 @@ export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
     target_url: row.target_url,
     fg_color: row.fg_color,
     bg_color: row.bg_color,
+    author: row.author,
     created_at: row.created_at,
     deleted_at: row.deleted_at,
     total_scans: Number(row.total_scans) || 0,

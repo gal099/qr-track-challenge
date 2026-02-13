@@ -146,3 +146,16 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with toast notifications for success/error messages
     - When creating E2E tests for admin functionality
     - When debugging deleted_at column queries or database migrations
+
+- app_docs/feature-189d1c96-author-field.md
+  - Conditions:
+    - When working with QR code author tracking or creator identification
+    - When implementing or modifying the author field in QR code generation
+    - When adding validation for text input fields with character limits
+    - When working with the QRGenerator component's form fields
+    - When troubleshooting author display in analytics dashboard or QR code cards
+    - When implementing client-side and server-side validation synchronization
+    - When creating database migrations for new columns with default values
+    - When working with Zod schema validation for alphanumeric inputs
+    - When debugging author field validation errors
+    - When creating E2E tests for form input validation

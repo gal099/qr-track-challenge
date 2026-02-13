@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { HexColorPicker } from 'react-colorful'
 import QRCode from 'qrcode'
-import { isValidUrl } from '@/lib/utils'
+import { isValidUrl } from '@/lib/utils-client'
 
 export default function QRGenerator() {
   const [targetUrl, setTargetUrl] = useState('')

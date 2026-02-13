@@ -16,13 +16,13 @@ CREATE INDEX IF NOT EXISTS idx_qr_codes_created_at ON qr_codes(created_at DESC);
 
 -- Constraints
 ALTER TABLE qr_codes
-    ADD CONSTRAINT IF NOT EXISTS check_fg_color_format CHECK (fg_color ~ '^#[0-9A-Fa-f]{6}$');
+    ADD CONSTRAINT check_fg_color_format CHECK (fg_color ~ '^#[0-9A-Fa-f]{6}$');
 
 ALTER TABLE qr_codes
-    ADD CONSTRAINT IF NOT EXISTS check_bg_color_format CHECK (bg_color ~ '^#[0-9A-Fa-f]{6}$');
+    ADD CONSTRAINT check_bg_color_format CHECK (bg_color ~ '^#[0-9A-Fa-f]{6}$');
 
 ALTER TABLE qr_codes
-    ADD CONSTRAINT IF NOT EXISTS check_target_url_not_empty CHECK (LENGTH(target_url) > 0);
+    ADD CONSTRAINT check_target_url_not_empty CHECK (LENGTH(target_url) > 0);
 
 -- Track applied migration
 CREATE TABLE IF NOT EXISTS schema_migrations (

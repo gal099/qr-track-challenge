@@ -20,7 +20,7 @@ CREATE INDEX IF NOT EXISTS idx_scans_country ON scans(country);
 
 -- Constraints
 ALTER TABLE scans
-    ADD CONSTRAINT IF NOT EXISTS check_device_type_enum
+    ADD CONSTRAINT check_device_type_enum
         CHECK (device_type IN ('mobile', 'tablet', 'desktop', 'unknown') OR device_type IS NULL);
 
 -- Track applied migration

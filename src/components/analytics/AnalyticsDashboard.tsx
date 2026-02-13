@@ -81,9 +81,43 @@ export default function AnalyticsDashboard({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-xl text-gray-600 dark:text-gray-300">
-          Loading analytics...
+      <div className="space-y-6">
+        {/* Skeleton Navigation */}
+        <div className="flex items-center justify-between">
+          <div className="h-6 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-10 w-28 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        {/* Skeleton Header */}
+        <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+          <div className="mb-2 h-9 w-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-5 w-96 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="mt-2 h-4 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        {/* Skeleton Total Scans */}
+        <div className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 p-8 shadow-lg">
+          <div className="flex flex-col items-center">
+            <div className="h-16 w-32 animate-pulse rounded bg-white/30" />
+            <div className="mt-2 h-6 w-28 animate-pulse rounded bg-white/30" />
+          </div>
+        </div>
+
+        {/* Skeleton Charts */}
+        <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+          <div className="mb-4 h-6 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-[300px] animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+            <div className="mb-4 h-6 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-[300px] animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+            <div className="mb-4 h-6 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-[300px] animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
         </div>
       </div>
     )

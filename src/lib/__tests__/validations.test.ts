@@ -43,7 +43,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid URL format')
+        expect(result.error.errors[0].message).toBe('Please enter a valid URL (e.g., https://example.com)')
       }
     })
 
@@ -53,7 +53,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid URL format')
+        expect(result.error.errors[0].message).toBe('Please enter a valid URL (e.g., https://example.com)')
       }
     })
 
@@ -63,7 +63,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid URL format')
+        expect(result.error.errors[0].message).toBe('URL is required')
       }
     })
 
@@ -105,7 +105,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid hex color format')
+        expect(result.error.errors[0].message).toBe('Foreground color must be a valid hex color (e.g., #000000)')
       }
     })
 
@@ -116,7 +116,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid hex color format')
+        expect(result.error.errors[0].message).toBe('Foreground color must be a valid hex color (e.g., #000000)')
       }
     })
 
@@ -127,7 +127,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid hex color format')
+        expect(result.error.errors[0].message).toBe('Foreground color must be a valid hex color (e.g., #000000)')
       }
     })
 
@@ -138,7 +138,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid hex color format')
+        expect(result.error.errors[0].message).toBe('Foreground color must be a valid hex color (e.g., #000000)')
       }
     })
 
@@ -169,7 +169,7 @@ describe('generateQRCodeSchema', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toBe('Invalid hex color format')
+        expect(result.error.errors[0].message).toBe('Background color must be a valid hex color (e.g., #FFFFFF)')
       }
     })
 

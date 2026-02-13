@@ -210,33 +210,93 @@ Redirect to target URL and track scan event.
 
 ## Deployment
 
-### Deploy to Vercel
+### Deploy to Vercel (Recommended)
 
-1. Push your code to GitHub
+#### Prerequisites
+- GitHub account with your code pushed to a repository
+- Vercel account (free tier available)
 
-2. Import project to Vercel:
-   - Go to https://vercel.com/new
-   - Import your GitHub repository
-   - Configure environment variables (see .env.example)
+#### Step 1: Import to Vercel
 
-3. Setup Vercel Postgres:
-   - Go to your project dashboard
-   - Navigate to Storage tab
-   - Create a Postgres database
-   - Copy connection string to environment variables
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click "Import Git Repository"
+3. Select your GitHub repository
+4. Vercel will auto-detect Next.js framework
 
-4. Run migrations:
-   ```bash
-   # Connect to your Vercel Postgres database
-   npm run db:migrate
-   ```
+#### Step 2: Setup Vercel Postgres Database
 
-5. Deploy:
-   ```bash
-   vercel --prod
-   ```
+1. In your Vercel project dashboard, go to **Storage** tab
+2. Click **Create Database** → **Postgres**
+3. Name your database (e.g., `qr-track-db`)
+4. Select your region (choose closest to your users)
+5. Click **Create**
+6. Vercel automatically adds database environment variables to your project
 
-Your app will be live at https://your-project.vercel.app
+#### Step 3: Configure Environment Variables
+
+In your Vercel project settings (Settings → Environment Variables), ensure these are set:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `POSTGRES_URL` | Auto-added by Vercel Postgres | `postgres://...` |
+| `NEXT_PUBLIC_BASE_URL` | Your production URL | `https://your-app.vercel.app` |
+
+> **Important:** `NEXT_PUBLIC_BASE_URL` must match your actual production URL for QR codes to work correctly.
+
+#### Step 4: Run Database Migrations
+
+Option A - Using Vercel CLI:
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Link to your project
+vercel link
+
+# Pull environment variables
+vercel env pull .env.local
+
+# Run migrations
+npm run db:migrate
+```
+
+Option B - Using Vercel Dashboard:
+1. Go to your database in Vercel Dashboard
+2. Click **Query** tab
+3. Copy contents of `db/schema.sql` and execute
+
+#### Step 5: Deploy
+
+Vercel automatically deploys when you push to your main branch. For manual deployment:
+
+```bash
+vercel --prod
+```
+
+#### Post-Deployment Verification
+
+1. Visit your production URL
+2. Generate a test QR code
+3. Scan the QR code to verify redirect works
+4. Check analytics page loads correctly
+
+### Custom Domain (Optional)
+
+1. Go to your project **Settings** → **Domains**
+2. Add your custom domain
+3. Update DNS records as instructed
+4. Update `NEXT_PUBLIC_BASE_URL` to your custom domain
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| QR codes show wrong URL | Check `NEXT_PUBLIC_BASE_URL` is set correctly |
+| Database connection errors | Verify Postgres is linked to your project |
+| 404 on redirect | Ensure database migrations ran successfully |
+| Scans not tracking | Check browser console for API errors |
+
+For detailed deployment instructions, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Development Scripts
 
@@ -255,6 +315,9 @@ npm run lint
 
 # Type check
 npm run type-check
+
+# Run all tests
+npm run test
 
 # Run database migrations
 npm run db:migrate

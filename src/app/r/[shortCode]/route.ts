@@ -18,12 +18,20 @@ export async function GET(
   try {
     const { shortCode } = params
 
+    // Validate short code format
+    if (!shortCode || shortCode.length < 1 || shortCode.length > 20) {
+      return NextResponse.json(
+        { error: 'Invalid short code format' },
+        { status: 400 }
+      )
+    }
+
     // Lookup QR code
     const qrCode = await getQRCodeByShortCode(shortCode)
 
     if (!qrCode) {
       return NextResponse.json(
-        { error: 'QR code not found' },
+        { error: 'Short URL not found. The QR code may have been deleted.' },
         { status: 404 }
       )
     }
@@ -48,8 +56,7 @@ export async function GET(
       device_type,
       browser,
     }).catch((error) => {
-      // Log error but don't block redirect
-      console.error('Failed to track scan:', error)
+      console.error('Failed to track scan for shortCode:', shortCode, error)
     })
 
     // Redirect to target URL
@@ -58,7 +65,7 @@ export async function GET(
     console.error('Redirect error:', error)
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'An error occurred while processing your request. Please try again.' },
       { status: 500 }
     )
   }

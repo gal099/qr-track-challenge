@@ -121,3 +121,13 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing scan count aggregation with LEFT JOIN queries
     - When working with node-postgres (pg) library type conversions
     - When creating E2E tests for analytics data accuracy
+
+- app_docs/feature-d059652c-city-name-decoding.md
+  - Conditions:
+    - When working with geolocation data from Vercel Edge headers
+    - When troubleshooting URL-encoded city names in analytics
+    - When implementing or modifying getGeolocationFromHeaders() in src/lib/utils-client.ts
+    - When debugging Geographic Distribution table display issues
+    - When adding URL decoding logic for user-facing text
+    - When working with special characters or international city names
+    - When creating E2E tests for city name display validation

@@ -34,3 +34,9 @@ export const generateQRCodeSchema = z.object({
 })
 
 export type GenerateQRCodeInput = z.infer<typeof generateQRCodeSchema>
+
+export const adminAuthSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+})
+
+export type AdminAuthInput = z.infer<typeof adminAuthSchema>

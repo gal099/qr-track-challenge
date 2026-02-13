@@ -281,6 +281,12 @@ describe('getGeolocationFromHeaders', () => {
       expect(result.city).toBe('São Paulo')
     })
 
+    it('should decode city names with multiple encoded characters', () => {
+      const headers = createHeaders('M%C3%BCnchen', 'DE')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('München')
+    })
+
     it('should pass through simple city names without encoding', () => {
       const headers = createHeaders('Tokyo', 'JP')
       const result = getGeolocationFromHeaders(headers)
@@ -298,6 +304,14 @@ describe('getGeolocationFromHeaders', () => {
       const headers = createHeaders('Invalid%Encoding', 'US')
       const result = getGeolocationFromHeaders(headers)
       expect(result.city).toBe('Invalid%Encoding')
+    })
+
+    it('should handle malformed URI encoding gracefully', () => {
+      const headers = createHeaders('%E0%A4%A', 'AR')
+      const result = getGeolocationFromHeaders(headers)
+      // Should return original value when decoding fails
+      expect(result.city).toBe('%E0%A4%A')
+      expect(result.country).toBe('AR')
     })
 
     it('should return undefined for missing city header', () => {

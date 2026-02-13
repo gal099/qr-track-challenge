@@ -9,6 +9,7 @@ export interface QRCode {
   fg_color: string
   bg_color: string
   created_at: Date
+  deleted_at: Date | null
 }
 
 export interface QRCodeWithScans extends QRCode {

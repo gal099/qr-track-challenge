@@ -38,13 +38,13 @@ export async function createQRCode(
 }
 
 /**
- * Get QR code by short code
+ * Get QR code by short code (excludes soft-deleted records)
  */
 export async function getQRCodeByShortCode(
   shortCode: string
 ): Promise<QRCode | null> {
   const result = await pool.query(
-    'SELECT * FROM qr_codes WHERE short_code = $1 LIMIT 1',
+    'SELECT * FROM qr_codes WHERE short_code = $1 AND deleted_at IS NULL LIMIT 1',
     [shortCode]
   )
 
@@ -52,11 +52,11 @@ export async function getQRCodeByShortCode(
 }
 
 /**
- * Get QR code by ID
+ * Get QR code by ID (excludes soft-deleted records)
  */
 export async function getQRCodeById(id: number): Promise<QRCode | null> {
   const result = await pool.query(
-    'SELECT * FROM qr_codes WHERE id = $1 LIMIT 1',
+    'SELECT * FROM qr_codes WHERE id = $1 AND deleted_at IS NULL LIMIT 1',
     [id]
   )
 
@@ -110,7 +110,7 @@ export async function createScan(input: CreateScanInput): Promise<Scan> {
 }
 
 /**
- * Get all QR codes with total scan counts
+ * Get all QR codes with total scan counts (excludes soft-deleted records)
  */
 export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
   const result = await pool.query(
@@ -121,10 +121,12 @@ export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
        qr.fg_color,
        qr.bg_color,
        qr.created_at,
+       qr.deleted_at,
        COALESCE(COUNT(s.id), 0)::INTEGER as total_scans
      FROM qr_codes qr
      LEFT JOIN scans s ON qr.id = s.qr_code_id
-     GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.created_at
+     WHERE qr.deleted_at IS NULL
+     GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.created_at, qr.deleted_at
      ORDER BY qr.created_at DESC`
   )
 
@@ -135,6 +137,7 @@ export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
     fg_color: row.fg_color,
     bg_color: row.bg_color,
     created_at: row.created_at,
+    deleted_at: row.deleted_at,
     total_scans: Number(row.total_scans) || 0,
   })) as QRCodeWithScans[]
 }
@@ -221,4 +224,33 @@ export async function getQRCodeAnalytics(
       count: parseInt(row.count),
     })),
   }
+}
+
+/**
+ * Soft delete a QR code by setting the deleted_at timestamp
+ */
+export async function softDeleteQRCode(shortCode: string): Promise<boolean> {
+  const result = await pool.query(
+    `UPDATE qr_codes
+     SET deleted_at = NOW()
+     WHERE short_code = $1 AND deleted_at IS NULL
+     RETURNING id`,
+    [shortCode]
+  )
+
+  return result.rowCount !== null && result.rowCount > 0
+}
+
+/**
+ * Get QR code by short code including deleted records (for admin purposes)
+ */
+export async function getQRCodeByShortCodeIncludeDeleted(
+  shortCode: string
+): Promise<QRCode | null> {
+  const result = await pool.query(
+    'SELECT * FROM qr_codes WHERE short_code = $1 LIMIT 1',
+    [shortCode]
+  )
+
+  return result.rows.length > 0 ? (result.rows[0] as QRCode) : null
 }

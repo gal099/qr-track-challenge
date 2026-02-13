@@ -8,7 +8,12 @@ jest.mock('../db', () => ({
   shortCodeExists: jest.fn(() => Promise.resolve(false)),
 }))
 
-import { isValidUrl, isValidHexColor, parseUserAgent } from '../utils'
+import {
+  isValidUrl,
+  isValidHexColor,
+  parseUserAgent,
+  getGeolocationFromHeaders,
+} from '../utils'
 
 describe('isValidUrl', () => {
   describe('valid URLs', () => {
@@ -240,6 +245,86 @@ describe('parseUserAgent', () => {
       const result = parseUserAgent('unknown-agent')
       // UA parser may return "unknown" or some partial match
       expect(typeof result.browser).toBe('string')
+    })
+  })
+})
+
+describe('getGeolocationFromHeaders', () => {
+  // Helper function to create Headers object
+  const createHeaders = (
+    city?: string,
+    country?: string
+  ): Headers => {
+    const headers = new Headers()
+    if (city !== undefined) headers.set('x-vercel-ip-city', city)
+    if (country !== undefined) headers.set('x-vercel-ip-country', country)
+    return headers
+  }
+
+  describe('city name decoding', () => {
+    it('should decode URL-encoded city names with special characters', () => {
+      const headers = createHeaders('General%20Fern%C3%A1ndez%20Oro', 'AR')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('General Fernández Oro')
+      expect(result.country).toBe('AR')
+    })
+
+    it('should decode URL-encoded city names with spaces', () => {
+      const headers = createHeaders('Tres%20Arroyos', 'AR')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Tres Arroyos')
+    })
+
+    it('should decode URL-encoded city with multiple special characters', () => {
+      const headers = createHeaders('S%C3%A3o%20Paulo', 'BR')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('São Paulo')
+    })
+
+    it('should pass through simple city names without encoding', () => {
+      const headers = createHeaders('Tokyo', 'JP')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Tokyo')
+    })
+
+    it('should handle city names that are already decoded', () => {
+      const headers = createHeaders('New York', 'US')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('New York')
+    })
+
+    it('should handle malformed encoding gracefully', () => {
+      // Invalid percent encoding should return original value
+      const headers = createHeaders('Invalid%Encoding', 'US')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Invalid%Encoding')
+    })
+
+    it('should return undefined for missing city header', () => {
+      const headers = createHeaders(undefined, 'US')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBeUndefined()
+    })
+
+    it('should return undefined for both when no headers are set', () => {
+      const headers = new Headers()
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBeUndefined()
+      expect(result.country).toBeUndefined()
+    })
+  })
+
+  describe('country handling', () => {
+    it('should return country code without modification', () => {
+      const headers = createHeaders('Buenos%20Aires', 'AR')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.country).toBe('AR')
+    })
+
+    it('should return undefined for missing country header', () => {
+      const headers = createHeaders('Tokyo')
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.country).toBeUndefined()
     })
   })
 })

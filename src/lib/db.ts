@@ -6,6 +6,7 @@
 import { sql } from '@vercel/postgres'
 import type {
   QRCode,
+  QRCodeWithScans,
   Scan,
   CreateQRCodeInput,
   CreateScanInput,
@@ -90,6 +91,36 @@ export async function createScan(input: CreateScanInput): Promise<Scan> {
   `
 
   return result.rows[0] as Scan
+}
+
+/**
+ * Get all QR codes with total scan counts
+ */
+export async function getAllQRCodes(): Promise<QRCodeWithScans[]> {
+  const result = await sql`
+    SELECT
+      qr.id,
+      qr.short_code,
+      qr.target_url,
+      qr.fg_color,
+      qr.bg_color,
+      qr.created_at,
+      COALESCE(COUNT(s.id), 0) as total_scans
+    FROM qr_codes qr
+    LEFT JOIN scans s ON qr.id = s.qr_code_id
+    GROUP BY qr.id, qr.short_code, qr.target_url, qr.fg_color, qr.bg_color, qr.created_at
+    ORDER BY qr.created_at DESC
+  `
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    short_code: row.short_code,
+    target_url: row.target_url,
+    fg_color: row.fg_color,
+    bg_color: row.bg_color,
+    created_at: row.created_at,
+    total_scans: parseInt(row.total_scans),
+  })) as QRCodeWithScans[]
 }
 
 /**

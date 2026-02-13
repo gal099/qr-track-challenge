@@ -11,6 +11,10 @@ export interface QRCode {
   created_at: Date
 }
 
+export interface QRCodeWithScans extends QRCode {
+  total_scans: number
+}
+
 export interface Scan {
   id: number
   qr_code_id: number

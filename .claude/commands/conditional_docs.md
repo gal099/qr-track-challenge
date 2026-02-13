@@ -159,3 +159,17 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with Zod schema validation for alphanumeric inputs
     - When debugging author field validation errors
     - When creating E2E tests for form input validation
+
+- app_docs/feature-64ca1d17-qr-thumbnail-download.md
+  - Conditions:
+    - When working with QR code thumbnails or preview images in analytics
+    - When implementing download functionality for QR codes
+    - When adding interactive hover states with overlays
+    - When working with the qrcode library for client-side QR generation
+    - When implementing Canvas API for image conversion (SVG to PNG)
+    - When troubleshooting QR code color preservation in analytics views
+    - When adding click-to-download features
+    - When implementing keyboard accessibility for interactive elements
+    - When working with the AnalyticsDashboard component's header section
+    - When debugging QR code generation or download issues in analytics
+    - When creating E2E tests for QR code download functionality

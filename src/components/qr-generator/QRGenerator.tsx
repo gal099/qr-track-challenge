@@ -1,0 +1,229 @@
+'use client'
+
+import { useState } from 'react'
+import { HexColorPicker } from 'react-colorful'
+
+export default function QRGenerator() {
+  const [targetUrl, setTargetUrl] = useState('')
+  const [fgColor, setFgColor] = useState('#000000')
+  const [bgColor, setBgColor] = useState('#FFFFFF')
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<{
+    qrCodeDataUrl: string
+    shortUrl: string
+    analyticsUrl: string
+  } | null>(null)
+  const [error, setError] = useState('')
+  const [showFgPicker, setShowFgPicker] = useState(false)
+  const [showBgPicker, setShowBgPicker] = useState(false)
+
+  const handleGenerate = async () => {
+    setError('')
+    setResult(null)
+
+    if (!targetUrl) {
+      setError('Please enter a URL')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/qr/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target_url: targetUrl,
+          fg_color: fgColor,
+          bg_color: bgColor,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to generate QR code')
+      }
+
+      setResult({
+        qrCodeDataUrl: data.data.qr_code_data_url,
+        shortUrl: data.data.short_url,
+        analyticsUrl: data.data.analytics_url,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDownload = () => {
+    if (!result) return
+
+    const link = document.createElement('a')
+    link.href = result.qrCodeDataUrl
+    link.download = 'qr-code.png'
+    link.click()
+  }
+
+  return (
+    <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
+      <div className="space-y-6">
+        {/* URL Input */}
+        <div>
+          <label
+            htmlFor="url"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            Target URL
+          </label>
+          <input
+            id="url"
+            type="url"
+            value={targetUrl}
+            onChange={(e) => setTargetUrl(e.target.value)}
+            placeholder="https://example.com"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+
+        {/* Color Pickers */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Foreground Color */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Foreground Color
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowFgPicker(!showFgPicker)}
+                className="flex w-full items-center gap-3 rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-600 dark:bg-gray-700"
+              >
+                <div
+                  className="h-8 w-8 rounded border border-gray-300"
+                  style={{ backgroundColor: fgColor }}
+                />
+                <span className="font-mono text-sm dark:text-white">
+                  {fgColor}
+                </span>
+              </button>
+              {showFgPicker && (
+                <div className="absolute left-0 top-full z-10 mt-2">
+                  <div
+                    className="fixed inset-0"
+                    onClick={() => setShowFgPicker(false)}
+                  />
+                  <div className="relative">
+                    <HexColorPicker color={fgColor} onChange={setFgColor} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Background Color */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Background Color
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowBgPicker(!showBgPicker)}
+                className="flex w-full items-center gap-3 rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-600 dark:bg-gray-700"
+              >
+                <div
+                  className="h-8 w-8 rounded border border-gray-300"
+                  style={{ backgroundColor: bgColor }}
+                />
+                <span className="font-mono text-sm dark:text-white">
+                  {bgColor}
+                </span>
+              </button>
+              {showBgPicker && (
+                <div className="absolute left-0 top-full z-10 mt-2">
+                  <div
+                    className="fixed inset-0"
+                    onClick={() => setShowBgPicker(false)}
+                  />
+                  <div className="relative">
+                    <HexColorPicker color={bgColor} onChange={setBgColor} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Generate Button */}
+        <button
+          onClick={handleGenerate}
+          disabled={loading || !targetUrl}
+          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Generating...' : 'Generate QR Code'}
+        </button>
+
+        {/* Error Message */}
+        {error && (
+          <div className="rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
+        {/* Result */}
+        {result && (
+          <div className="space-y-4 rounded-lg border border-gray-200 p-6 dark:border-gray-700">
+            <div className="flex justify-center">
+              <img
+                src={result.qrCodeDataUrl}
+                alt="Generated QR Code"
+                className="rounded-lg border border-gray-300 dark:border-gray-600"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Short URL
+                </label>
+                <div className="mt-1 flex gap-2">
+                  <input
+                    type="text"
+                    value={result.shortUrl}
+                    readOnly
+                    className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  />
+                  <button
+                    onClick={() => navigator.clipboard.writeText(result.shortUrl)}
+                    className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDownload}
+                  className="flex-1 rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700"
+                >
+                  Download PNG
+                </button>
+                <a
+                  href={result.analyticsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 rounded-lg bg-purple-600 px-4 py-2 text-center font-medium text-white hover:bg-purple-700"
+                >
+                  View Analytics
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

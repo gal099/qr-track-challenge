@@ -1,0 +1,10 @@
+[
+  {
+    "session_id": "b729061b-899b-4615-a491-174c6286ac61",
+    "transcript_path": "/Users/juanbaez/.claude/projects/-Users-juanbaez-Documents-qr-track-challenge/b729061b-899b-4615-a491-174c6286ac61.jsonl",
+    "cwd": "/Users/juanbaez/Documents/qr-track-challenge",
+    "hook_event_name": "Notification",
+    "message": "Claude needs your permission to use Bash",
+    "notification_type": "permission_prompt"
+  }
+]

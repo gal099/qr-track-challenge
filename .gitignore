@@ -50,6 +50,14 @@ __pycache__/
 venv/
 ENV/
 
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+.claude/logs/
+
 # ADW state (internal, not committed)
 agents/
 specs/

@@ -1,0 +1,46 @@
+{
+  "name": "qr-track",
+  "version": "0.1.0",
+  "private": true,
+  "description": "QR Code Generator with Analytics - Track QR code scans with built-in analytics",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "db:migrate": "node db/run-migrations.js"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "@vercel/postgres": "^0.5.1",
+    "nanoid": "^5.0.4",
+    "qrcode": "^1.5.3",
+    "zod": "^3.22.4",
+    "ua-parser-js": "^1.0.37",
+    "date-fns": "^3.3.1",
+    "recharts": "^2.10.4",
+    "react-colorful": "^5.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@types/qrcode": "^1.5.5",
+    "@types/ua-parser-js": "^0.7.39",
+    "typescript": "^5.3.3",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.33",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.2.0",
+    "prettier": "^3.2.4",
+    "prettier-plugin-tailwindcss": "^0.5.11"
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "pnpm": ">=8.0.0"
+  }
+}

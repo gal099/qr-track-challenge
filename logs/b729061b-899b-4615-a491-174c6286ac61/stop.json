@@ -1,0 +1,10 @@
+[
+  {
+    "session_id": "b729061b-899b-4615-a491-174c6286ac61",
+    "transcript_path": "/Users/juanbaez/.claude/projects/-Users-juanbaez-Documents-qr-track-challenge/b729061b-899b-4615-a491-174c6286ac61.jsonl",
+    "cwd": "/Users/juanbaez/Documents/qr-track-challenge",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "Stop",
+    "stop_hook_active": false
+  }
+]

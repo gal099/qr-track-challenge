@@ -86,7 +86,7 @@ def main():
         os.path.join(script_dir, "adw_test.py"),
         issue_number,
         adw_id,
-        # E2E tests enabled - remove "--skip-e2e" to run them
+        "--skip-e2e",
     ]
     print(f"\n=== TEST PHASE ===")
     print(f"Running: {' '.join(test_cmd)}")

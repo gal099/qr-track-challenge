@@ -63,3 +63,17 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing navigation between QR list and individual analytics
     - When working with the /api/qr/list endpoint
     - When debugging getAllQRCodes database queries
+
+- app_docs/feature-2dbc705d-production-deployment-polish.md
+  - Conditions:
+    - When deploying the application to production
+    - When setting up Vercel or configuring deployment settings
+    - When working with environment variables or configuration
+    - When implementing loading states or skeleton loaders
+    - When improving error handling in API routes
+    - When enhancing input validation or user feedback
+    - When adding security headers or production configurations
+    - When troubleshooting production deployment issues
+    - When working with vercel.json or .vercelignore files
+    - When implementing copy-to-clipboard functionality
+    - When optimizing images with Next.js Image component

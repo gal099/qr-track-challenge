@@ -29,3 +29,13 @@ This prompt helps you determine what documentation you should read based on the 
 - adws/README.md
   - Conditions:
     - When you're operating in the `adws/` directory
+
+- app_docs/feature-80778bfe-qr-code-generation.md
+  - Conditions:
+    - When working with QR code generation features
+    - When implementing real-time preview functionality
+    - When troubleshooting QR code rendering issues
+    - When modifying the QRGenerator component
+    - When adding or updating QR code tests
+    - When working with color customization features
+    - When debugging QR code download functionality

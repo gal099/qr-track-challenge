@@ -119,8 +119,9 @@ class R2Uploader:
             
             # Upload and get public URL
             public_url = self.upload_file(screenshot_path, object_key)
-            
-            # Map to public URL if successful, otherwise keep original path
-            url_mapping[screenshot_path] = public_url or screenshot_path
+
+            # Map to public URL if successful, otherwise don't include (avoids broken local paths)
+            if public_url:
+                url_mapping[screenshot_path] = public_url
             
         return url_mapping

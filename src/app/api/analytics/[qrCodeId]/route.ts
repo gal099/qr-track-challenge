@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getQRCodeById, getQRCodeAnalytics } from '@/lib/db'
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { qrCodeId: string } }
 ) {
   try {

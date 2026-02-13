@@ -168,7 +168,7 @@ export default function AnalyticsDashboard({
                   outerRadius={100}
                   label
                 >
-                  {analytics.device_breakdown.map((entry, index) => (
+                  {analytics.device_breakdown.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}

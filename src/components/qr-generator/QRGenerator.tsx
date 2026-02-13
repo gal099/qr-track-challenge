@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { HexColorPicker } from 'react-colorful'
+import QRCode from 'qrcode'
+import { isValidUrl } from '@/lib/utils'
 
 export default function QRGenerator() {
   const [targetUrl, setTargetUrl] = useState('')
@@ -16,6 +18,46 @@ export default function QRGenerator() {
   const [error, setError] = useState('')
   const [showFgPicker, setShowFgPicker] = useState(false)
   const [showBgPicker, setShowBgPicker] = useState(false)
+  const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null)
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+
+  const generatePreview = useCallback(async () => {
+    if (!targetUrl || !isValidUrl(targetUrl)) {
+      setPreviewDataUrl(null)
+      return
+    }
+
+    setIsPreviewLoading(true)
+    try {
+      const dataUrl = await QRCode.toDataURL(targetUrl, {
+        color: { dark: fgColor, light: bgColor },
+        width: 256,
+        margin: 2,
+      })
+      setPreviewDataUrl(dataUrl)
+    } catch {
+      setPreviewDataUrl(null)
+    } finally {
+      setIsPreviewLoading(false)
+    }
+  }, [targetUrl, fgColor, bgColor])
+
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
+    debounceRef.current = setTimeout(() => {
+      generatePreview()
+    }, 300)
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [generatePreview])
 
   const handleGenerate = async () => {
     setError('')
@@ -156,11 +198,38 @@ export default function QRGenerator() {
           </div>
         </div>
 
+        {/* Preview Section */}
+        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+          <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Preview
+          </h3>
+          <div className="flex min-h-[200px] items-center justify-center">
+            {isPreviewLoading ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Generating preview...
+                </span>
+              </div>
+            ) : previewDataUrl ? (
+              <img
+                src={previewDataUrl}
+                alt="QR Code Preview"
+                className="rounded-lg border border-gray-300 dark:border-gray-600"
+              />
+            ) : (
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                Enter a valid URL to see preview
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Generate Button */}
         <button
           onClick={handleGenerate}
           disabled={loading || !targetUrl}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
         >
           {loading ? 'Generating...' : 'Generate QR Code'}
         </button>

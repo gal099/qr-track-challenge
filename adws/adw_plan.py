@@ -22,6 +22,7 @@ import sys
 import os
 import logging
 import json
+import time
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -209,8 +210,18 @@ def main():
         )
         sys.exit(1)
     
-    if not os.path.exists(plan_file_path):
-        error = f"Plan file does not exist: {plan_file_path}"
+    # Retry with polling to handle filesystem sync delays
+    max_retries = 10
+    retry_delay = 0.5  # 500ms between attempts
+
+    for attempt in range(max_retries):
+        if os.path.exists(plan_file_path):
+            logger.info(f"Plan file found: {plan_file_path}")
+            break
+        logger.info(f"Waiting for plan file... (attempt {attempt + 1}/{max_retries})")
+        time.sleep(retry_delay)
+    else:
+        error = f"Plan file not found after {max_retries} attempts: {plan_file_path}"
         logger.error(error)
         make_issue_comment(
             issue_number,

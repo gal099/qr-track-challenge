@@ -77,3 +77,16 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with vercel.json or .vercelignore files
     - When implementing copy-to-clipboard functionality
     - When optimizing images with Next.js Image component
+
+- app_docs/feature-6d335ed1-supabase-connection-fix.md
+  - Conditions:
+    - When troubleshooting database connection errors
+    - When working with database connection configuration in src/lib/db.ts
+    - When migrating database libraries or connection methods
+    - When setting up Supabase Postgres connections
+    - When replacing @vercel/postgres with pg library
+    - When implementing or modifying connection pooling
+    - When working with parameterized queries
+    - When debugging production database connection issues
+    - When separating client-safe utilities from server-only utilities
+    - When working with src/lib/utils.ts or src/lib/utils-client.ts

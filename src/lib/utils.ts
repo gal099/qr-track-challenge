@@ -32,14 +32,16 @@ export async function generateUniqueShortCode(): Promise<string> {
 /**
  * Parse user agent string to extract device type and browser
  */
-export function parseUserAgent(userAgentString: string) {
+export function parseUserAgent(userAgentString: string): {
+  device_type: 'mobile' | 'tablet' | 'desktop'
+  browser: string
+} {
   const parser = new UAParser(userAgentString)
   const result = parser.getResult()
 
-  const deviceType = (() => {
+  const deviceType: 'mobile' | 'tablet' | 'desktop' = (() => {
     if (result.device.type === 'mobile') return 'mobile'
     if (result.device.type === 'tablet') return 'tablet'
-    if (result.device.type) return result.device.type as 'desktop'
     return 'desktop' // Default to desktop if unknown
   })()
 

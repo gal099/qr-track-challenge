@@ -145,7 +145,7 @@ export default function QRGenerator() {
             value={targetUrl}
             onChange={(e) => setTargetUrl(e.target.value)}
             placeholder="https://example.com"
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
           />
         </div>
 
@@ -166,7 +166,7 @@ export default function QRGenerator() {
                   className="h-8 w-8 rounded border border-gray-300"
                   style={{ backgroundColor: fgColor }}
                 />
-                <span className="font-mono text-sm dark:text-white">
+                <span className="font-mono text-sm text-gray-700 dark:text-white">
                   {fgColor}
                 </span>
               </button>
@@ -199,7 +199,7 @@ export default function QRGenerator() {
                   className="h-8 w-8 rounded border border-gray-300"
                   style={{ backgroundColor: bgColor }}
                 />
-                <span className="font-mono text-sm dark:text-white">
+                <span className="font-mono text-sm text-gray-700 dark:text-white">
                   {bgColor}
                 </span>
               </button>
@@ -291,14 +291,14 @@ export default function QRGenerator() {
                     type="text"
                     value={result.shortUrl}
                     readOnly
-                    className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />
                   <button
                     onClick={() => handleCopy(result.shortUrl)}
                     className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                       copied
                         ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'
                     }`}
                   >
                     {copied ? 'Copied!' : 'Copy'}

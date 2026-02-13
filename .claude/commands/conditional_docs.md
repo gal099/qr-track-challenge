@@ -99,3 +99,15 @@ This prompt helps you determine what documentation you should read based on the 
     - When debugging "Plan file does not exist" errors in adws/adw_plan.py
     - When adding polling or retry logic to ADW workflows
     - When handling filesystem synchronization delays
+
+- app_docs/feature-10abd5de-ui-text-contrast-fix.md
+  - Conditions:
+    - When working on UI accessibility improvements
+    - When fixing text contrast or color visibility issues
+    - When implementing WCAG compliance fixes
+    - When modifying text colors in the QRGenerator component
+    - When working with Tailwind CSS text color utilities
+    - When troubleshooting placeholder or input text visibility
+    - When adding or modifying color code displays
+    - When improving button text contrast
+    - When creating E2E tests for visual accessibility

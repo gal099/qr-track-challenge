@@ -214,4 +214,68 @@ describe('QRCodeList', () => {
       })
     })
   })
+
+  describe('Deleted QR code filtering', () => {
+    // Note: The actual filtering of deleted QR codes happens server-side in the
+    // getAllQRCodes() function which includes 'WHERE qr.deleted_at IS NULL'.
+    // These tests verify that the component correctly displays only the QR codes
+    // returned by the API (which excludes soft-deleted records).
+
+    it('should only display non-deleted QR codes returned by the API', async () => {
+      // This mock represents what the API returns - already filtered to exclude deleted QR codes
+      const activeQRCodes = [
+        {
+          id: 1,
+          short_code: 'active1',
+          target_url: 'https://active-url.com',
+          fg_color: '#000000',
+          bg_color: '#FFFFFF',
+          created_at: '2024-01-15T10:00:00.000Z',
+          total_scans: 10,
+          deleted_at: null,
+        },
+      ]
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: { qr_codes: activeQRCodes },
+          }),
+      })
+
+      render(<QRCodeList />)
+
+      await waitFor(() => {
+        // Verify the active QR code is displayed
+        expect(screen.getByText('active1')).toBeInTheDocument()
+        expect(screen.getByText('https://active-url.com')).toBeInTheDocument()
+
+        // Verify only one QR code card is rendered
+        const links = screen.getAllByRole('link')
+        expect(links).toHaveLength(1)
+        expect(links[0]).toHaveAttribute('href', '/analytics/1')
+      })
+    })
+
+    it('should show empty state when all QR codes have been deleted', async () => {
+      // When all QR codes are deleted, the API returns an empty array
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            success: true,
+            data: { qr_codes: [] },
+          }),
+      })
+
+      render(<QRCodeList />)
+
+      await waitFor(() => {
+        expect(screen.getByText('No QR codes found.')).toBeInTheDocument()
+        expect(screen.getByText('Generate your first QR code')).toBeInTheDocument()
+      })
+    })
+  })
 })

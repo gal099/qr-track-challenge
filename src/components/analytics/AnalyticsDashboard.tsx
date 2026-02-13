@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import {
   LineChart,
   Line,
@@ -44,6 +45,18 @@ export default function AnalyticsDashboard({
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = useCallback(async () => {
+    try {
+      const url = window.location.href
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy link:', err)
+    }
+  }, [])
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -90,6 +103,22 @@ export default function AnalyticsDashboard({
 
   return (
     <div className="space-y-6">
+      {/* Navigation */}
+      <div className="flex items-center justify-between">
+        <Link
+          href="/analytics"
+          className="text-blue-600 hover:underline dark:text-blue-400"
+        >
+          ← Back to All QR Codes
+        </Link>
+        <button
+          onClick={handleCopyLink}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+        >
+          {copied ? 'Link Copied!' : 'Share Link'}
+        </button>
+      </div>
+
       {/* Header */}
       <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
         <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">

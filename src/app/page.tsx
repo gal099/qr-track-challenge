@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import QRGenerator from '@/components/qr-generator/QRGenerator'
 
 export default function HomePage() {
@@ -13,6 +14,12 @@ export default function HomePage() {
             <p className="text-xl text-gray-600 dark:text-gray-300">
               Generate customizable QR codes with built-in analytics tracking
             </p>
+            <Link
+              href="/analytics"
+              className="mt-4 inline-block text-blue-600 hover:underline dark:text-blue-400"
+            >
+              View Analytics →
+            </Link>
           </div>
 
           {/* QR Generator */}

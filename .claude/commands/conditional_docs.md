@@ -173,3 +173,15 @@ This prompt helps you determine what documentation you should read based on the 
     - When working with the AnalyticsDashboard component's header section
     - When debugging QR code generation or download issues in analytics
     - When creating E2E tests for QR code download functionality
+
+- app_docs/feature-a8e0635d-deleted-qr-analytics-filter.md
+  - Conditions:
+    - When working with deleted QR code filtering in analytics
+    - When troubleshooting deleted QR codes appearing in analytics dashboard
+    - When implementing or debugging soft delete behavior in analytics
+    - When adding tests for deleted QR code filtering
+    - When working with the QRCodeList component's display logic
+    - When verifying database filtering of deleted records in getAllQRCodes()
+    - When implementing 404 handling for deleted QR code access
+    - When creating E2E tests for QR code deletion workflows
+    - When debugging issues with QR codes not disappearing after deletion

@@ -47,6 +47,13 @@ describe('QRGenerator', () => {
       expect(screen.getByPlaceholderText('https://example.com')).toBeInTheDocument()
     })
 
+    it('should render Author input field with correct label', () => {
+      render(<QRGenerator />)
+
+      expect(screen.getByLabelText('Author')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Your name or identifier')).toBeInTheDocument()
+    })
+
     it('should render foreground color picker button showing #000000', () => {
       render(<QRGenerator />)
 
@@ -86,7 +93,7 @@ describe('QRGenerator', () => {
       expect(input).toHaveValue('https://example.com')
     })
 
-    it('should enable Generate button with valid URL', async () => {
+    it('should not enable Generate button with only valid URL (author required)', async () => {
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
       render(<QRGenerator />)
 
@@ -94,7 +101,63 @@ describe('QRGenerator', () => {
       await user.type(input, 'https://example.com')
 
       const button = screen.getByRole('button', { name: /generate qr code/i })
+      expect(button).toBeDisabled()
+    })
+
+    it('should enable Generate button with valid URL and valid author', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+      render(<QRGenerator />)
+
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
+
+      const button = screen.getByRole('button', { name: /generate qr code/i })
       expect(button).toBeEnabled()
+    })
+  })
+
+  describe('Author input', () => {
+    it('should allow user to type in the Author input', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+      render(<QRGenerator />)
+
+      const input = screen.getByLabelText('Author')
+      await user.type(input, 'John Doe')
+
+      expect(input).toHaveValue('John Doe')
+    })
+
+    it('should show error for author less than 2 characters', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+      render(<QRGenerator />)
+
+      const input = screen.getByLabelText('Author')
+      await user.type(input, 'A')
+
+      expect(screen.getByText('Author must be at least 2 characters')).toBeInTheDocument()
+    })
+
+    it('should show error for author with special characters', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+      render(<QRGenerator />)
+
+      const input = screen.getByLabelText('Author')
+      await user.type(input, 'Test@User')
+
+      expect(screen.getByText('Author can only contain letters, numbers, and spaces')).toBeInTheDocument()
+    })
+
+    it('should not show error for valid author', async () => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+      render(<QRGenerator />)
+
+      const input = screen.getByLabelText('Author')
+      await user.type(input, 'John Doe')
+
+      expect(screen.queryByText(/Author must be/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Author can only contain/)).not.toBeInTheDocument()
     })
   })
 
@@ -225,7 +288,7 @@ describe('QRGenerator', () => {
   })
 
   describe('Form submission', () => {
-    it('should call API when Generate button is clicked', async () => {
+    it('should call API when Generate button is clicked with valid URL and author', async () => {
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -242,8 +305,10 @@ describe('QRGenerator', () => {
 
       render(<QRGenerator />)
 
-      const input = screen.getByLabelText('Target URL')
-      await user.type(input, 'https://example.com')
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
 
       const generateButton = screen.getByRole('button', { name: /generate qr code/i })
       await user.click(generateButton)
@@ -254,6 +319,7 @@ describe('QRGenerator', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             target_url: 'https://example.com',
+            author: 'John Doe',
             fg_color: '#000000',
             bg_color: '#FFFFFF',
           }),
@@ -272,8 +338,10 @@ describe('QRGenerator', () => {
 
       render(<QRGenerator />)
 
-      const input = screen.getByLabelText('Target URL')
-      await user.type(input, 'https://example.com')
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
 
       const generateButton = screen.getByRole('button', { name: /generate qr code/i })
       await user.click(generateButton)
@@ -314,8 +382,10 @@ describe('QRGenerator', () => {
 
       render(<QRGenerator />)
 
-      const input = screen.getByLabelText('Target URL')
-      await user.type(input, 'https://example.com')
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
 
       const generateButton = screen.getByRole('button', { name: /generate qr code/i })
       await user.click(generateButton)
@@ -341,8 +411,10 @@ describe('QRGenerator', () => {
 
       render(<QRGenerator />)
 
-      const input = screen.getByLabelText('Target URL')
-      await user.type(input, 'https://example.com')
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
 
       const generateButton = screen.getByRole('button', { name: /generate qr code/i })
       await user.click(generateButton)
@@ -371,8 +443,10 @@ describe('QRGenerator', () => {
 
       render(<QRGenerator />)
 
-      const input = screen.getByLabelText('Target URL')
-      await user.type(input, 'https://example.com')
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
 
       const generateButton = screen.getByRole('button', { name: /generate qr code/i })
       await user.click(generateButton)
@@ -403,8 +477,10 @@ describe('QRGenerator', () => {
 
       render(<QRGenerator />)
 
-      const input = screen.getByLabelText('Target URL')
-      await user.type(input, 'https://example.com')
+      const urlInput = screen.getByLabelText('Target URL')
+      const authorInput = screen.getByLabelText('Author')
+      await user.type(urlInput, 'https://example.com')
+      await user.type(authorInput, 'John Doe')
 
       const generateButton = screen.getByRole('button', { name: /generate qr code/i })
       await user.click(generateButton)

@@ -33,6 +33,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should validate a complete valid request', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com',
+        author: 'John Doe',
         fg_color: '#000000',
         bg_color: '#FFFFFF',
       })
@@ -43,6 +44,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should apply default colors when omitted', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com',
+        author: 'John Doe',
       })
 
       expect(result.success).toBe(true)
@@ -55,6 +57,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should accept URL with query parameters', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com/path?query=value&foo=bar',
+        author: 'John Doe',
       })
 
       expect(result.success).toBe(true)
@@ -63,6 +66,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should accept URL with fragment', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com/path#section',
+        author: 'John Doe',
       })
 
       expect(result.success).toBe(true)
@@ -71,6 +75,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should accept localhost URL', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'http://localhost:3000',
+        author: 'John Doe',
       })
 
       expect(result.success).toBe(true)
@@ -80,6 +85,16 @@ describe('POST /api/qr/generate - Input Validation', () => {
   describe('Invalid inputs', () => {
     it('should reject missing target_url', () => {
       const result = generateQRCodeSchema.safeParse({
+        author: 'John Doe',
+        fg_color: '#000000',
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject missing author', () => {
+      const result = generateQRCodeSchema.safeParse({
+        target_url: 'https://example.com',
         fg_color: '#000000',
       })
 
@@ -89,6 +104,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should reject invalid URL format', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'not-a-url',
+        author: 'John Doe',
       })
 
       expect(result.success).toBe(false)
@@ -97,6 +113,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should reject URL without protocol', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'example.com',
+        author: 'John Doe',
       })
 
       expect(result.success).toBe(false)
@@ -105,6 +122,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should reject invalid color format (missing #)', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com',
+        author: 'John Doe',
         fg_color: '000000',
       })
 
@@ -114,6 +132,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should reject invalid color format (named color)', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com',
+        author: 'John Doe',
         fg_color: 'red',
       })
 
@@ -123,6 +142,7 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should reject invalid color format (3-char hex)', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: 'https://example.com',
+        author: 'John Doe',
         fg_color: '#FFF',
       })
 
@@ -132,6 +152,34 @@ describe('POST /api/qr/generate - Input Validation', () => {
     it('should reject empty target_url', () => {
       const result = generateQRCodeSchema.safeParse({
         target_url: '',
+        author: 'John Doe',
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject author less than 2 characters', () => {
+      const result = generateQRCodeSchema.safeParse({
+        target_url: 'https://example.com',
+        author: 'A',
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject author more than 30 characters', () => {
+      const result = generateQRCodeSchema.safeParse({
+        target_url: 'https://example.com',
+        author: 'A'.repeat(31),
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it('should reject author with special characters', () => {
+      const result = generateQRCodeSchema.safeParse({
+        target_url: 'https://example.com',
+        author: 'Test@User#123',
       })
 
       expect(result.success).toBe(false)
@@ -148,14 +196,17 @@ describe('POST /api/qr/generate - Business Logic', () => {
       target_url: 'https://example.com',
       fg_color: '#000000',
       bg_color: '#FFFFFF',
+      author: 'John Doe',
       created_at: new Date(),
+      deleted_at: null,
     })
     mockToDataURL.mockResolvedValue('data:image/png;base64,mockQRCode')
   })
 
-  it('should call createQRCode with correct parameters', async () => {
+  it('should call createQRCode with correct parameters including author', async () => {
     const validatedData = {
       target_url: 'https://example.com',
+      author: 'John Doe',
       fg_color: '#123456',
       bg_color: '#ABCDEF',
     }
@@ -165,6 +216,7 @@ describe('POST /api/qr/generate - Business Logic', () => {
       target_url: validatedData.target_url,
       fg_color: validatedData.fg_color,
       bg_color: validatedData.bg_color,
+      author: validatedData.author,
     })
 
     expect(mockCreateQRCode).toHaveBeenCalledWith({
@@ -172,6 +224,7 @@ describe('POST /api/qr/generate - Business Logic', () => {
       target_url: 'https://example.com',
       fg_color: '#123456',
       bg_color: '#ABCDEF',
+      author: 'John Doe',
     })
   })
 
@@ -235,6 +288,7 @@ describe('POST /api/qr/generate - Error Handling', () => {
         target_url: 'https://example.com',
         fg_color: '#000000',
         bg_color: '#FFFFFF',
+        author: 'John Doe',
       })
     ).rejects.toThrow('Database connection failed')
   })

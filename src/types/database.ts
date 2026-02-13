@@ -8,6 +8,7 @@ export interface QRCode {
   target_url: string
   fg_color: string
   bg_color: string
+  author: string
   created_at: Date
   deleted_at: Date | null
 }
@@ -40,6 +41,7 @@ export interface CreateQRCodeInput {
   target_url: string
   fg_color?: string
   bg_color?: string
+  author: string
 }
 
 export interface CreateScanInput {

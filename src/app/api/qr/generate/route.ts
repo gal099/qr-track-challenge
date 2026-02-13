@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       target_url: validatedData.target_url,
       fg_color: validatedData.fg_color,
       bg_color: validatedData.bg_color,
+      author: validatedData.author,
     })
 
     // Generate QR code image as data URL

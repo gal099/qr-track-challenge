@@ -23,6 +23,17 @@ export const generateQRCodeSchema = z.object({
       },
       { message: 'URL must start with http:// or https://' }
     ),
+  author: z
+    .string()
+    .min(1, 'Author is required')
+    .transform((val) => val.trim())
+    .pipe(
+      z
+        .string()
+        .min(2, 'Author must be at least 2 characters')
+        .max(30, 'Author must be at most 30 characters')
+        .regex(/^[a-zA-Z0-9\s]+$/, 'Author can only contain letters, numbers, and spaces')
+    ),
   fg_color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Foreground color must be a valid hex color (e.g., #000000)')

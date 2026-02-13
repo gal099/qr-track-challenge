@@ -24,6 +24,7 @@ interface AnalyticsData {
     id: number
     short_code: string
     target_url: string
+    author: string
     created_at: string
   }
   analytics: {
@@ -171,6 +172,9 @@ export default function AnalyticsDashboard({
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Created: {format(new Date(qr_code.created_at), 'PPP')}
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Author: {qr_code.author}
         </p>
       </div>
 

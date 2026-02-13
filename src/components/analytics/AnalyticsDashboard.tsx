@@ -18,6 +18,8 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { format } from 'date-fns'
+import Image from 'next/image'
+import QRCode from 'qrcode'
 
 interface AnalyticsData {
   qr_code: {
@@ -26,6 +28,8 @@ interface AnalyticsData {
     target_url: string
     author: string
     created_at: string
+    fg_color: string
+    bg_color: string
   }
   analytics: {
     total_scans: number
@@ -47,6 +51,8 @@ export default function AnalyticsDashboard({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [qrHovered, setQrHovered] = useState(false)
+  const [qrThumbnailUrl, setQrThumbnailUrl] = useState<string | null>(null)
 
   const handleCopyLink = useCallback(async () => {
     try {
@@ -56,6 +62,23 @@ export default function AnalyticsDashboard({
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy link:', err)
+    }
+  }, [])
+
+  const handleDownloadQR = useCallback(async (shortCode: string, fgColor: string, bgColor: string) => {
+    try {
+      const shortUrl = `${window.location.origin}/r/${shortCode}`
+      const dataUrl = await QRCode.toDataURL(shortUrl, {
+        color: { dark: fgColor || '#000000', light: bgColor || '#FFFFFF' },
+        width: 256,
+        margin: 2,
+      })
+      const link = document.createElement('a')
+      link.href = dataUrl
+      link.download = `qr-code-${shortCode}.png`
+      link.click()
+    } catch (err) {
+      console.error('Failed to download QR code:', err)
     }
   }, [])
 
@@ -70,6 +93,16 @@ export default function AnalyticsDashboard({
         }
 
         setData(result.data)
+
+        // Generate QR thumbnail
+        const { short_code, fg_color, bg_color } = result.data.qr_code
+        const shortUrl = `${window.location.origin}/r/${short_code}`
+        const thumbnailDataUrl = await QRCode.toDataURL(shortUrl, {
+          color: { dark: fg_color || '#000000', light: bg_color || '#FFFFFF' },
+          width: 80,
+          margin: 1,
+        })
+        setQrThumbnailUrl(thumbnailDataUrl)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -156,26 +189,77 @@ export default function AnalyticsDashboard({
 
       {/* Header */}
       <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
-          QR Code Analytics
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          Target URL:{' '}
-          <a
-            href={qr_code.target_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline dark:text-blue-400"
-          >
-            {qr_code.target_url}
-          </a>
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Created: {format(new Date(qr_code.created_at), 'PPP')}
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Author: {qr_code.author}
-        </p>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+              QR Code Analytics
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Target URL:{' '}
+              <a
+                href={qr_code.target_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline dark:text-blue-400"
+              >
+                {qr_code.target_url}
+              </a>
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Created: {format(new Date(qr_code.created_at), 'PPP')}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Author: {qr_code.author}
+            </p>
+          </div>
+          {/* QR Thumbnail with Download */}
+          {qrThumbnailUrl && (
+            <div
+              className="relative ml-4 flex-shrink-0 cursor-pointer"
+              onMouseEnter={() => setQrHovered(true)}
+              onMouseLeave={() => setQrHovered(false)}
+              onClick={() => handleDownloadQR(qr_code.short_code, qr_code.fg_color, qr_code.bg_color)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleDownloadQR(qr_code.short_code, qr_code.fg_color, qr_code.bg_color)
+                }
+              }}
+              aria-label="Download QR code"
+            >
+              <Image
+                src={qrThumbnailUrl}
+                alt="QR Code"
+                width={80}
+                height={80}
+                className="rounded"
+                unoptimized
+              />
+            {/* Hover Overlay */}
+            <div
+              className={`absolute inset-0 flex items-center justify-center rounded bg-black/50 transition-opacity ${
+                qrHovered ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+            </div>
+          </div>
+          )}
+        </div>
       </div>
 
       {/* Total Scans */}

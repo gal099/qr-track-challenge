@@ -8,7 +8,12 @@ jest.mock('../db', () => ({
   shortCodeExists: jest.fn(() => Promise.resolve(false)),
 }))
 
-import { isValidUrl, isValidHexColor, parseUserAgent } from '../utils'
+import {
+  isValidUrl,
+  isValidHexColor,
+  parseUserAgent,
+  getGeolocationFromHeaders,
+} from '../utils'
 
 describe('isValidUrl', () => {
   describe('valid URLs', () => {
@@ -240,6 +245,85 @@ describe('parseUserAgent', () => {
       const result = parseUserAgent('unknown-agent')
       // UA parser may return "unknown" or some partial match
       expect(typeof result.browser).toBe('string')
+    })
+  })
+})
+
+describe('getGeolocationFromHeaders', () => {
+  describe('city name decoding', () => {
+    it('should decode URL-encoded city names with spaces', () => {
+      const headers = new Headers({
+        'x-vercel-ip-country': 'AR',
+        'x-vercel-ip-city': 'Tres%20Arroyos',
+      })
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Tres Arroyos')
+      expect(result.country).toBe('AR')
+    })
+
+    it('should decode URL-encoded city names with special characters', () => {
+      const headers = new Headers({
+        'x-vercel-ip-country': 'AR',
+        'x-vercel-ip-city': 'General%20Fern%C3%A1ndez%20Oro',
+      })
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('General Fernández Oro')
+      expect(result.country).toBe('AR')
+    })
+
+    it('should pass through simple city names unchanged', () => {
+      const headers = new Headers({
+        'x-vercel-ip-country': 'US',
+        'x-vercel-ip-city': 'Boston',
+      })
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Boston')
+      expect(result.country).toBe('US')
+    })
+
+    it('should return undefined for missing city header', () => {
+      const headers = new Headers({
+        'x-vercel-ip-country': 'US',
+      })
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBeUndefined()
+      expect(result.country).toBe('US')
+    })
+
+    it('should return undefined for missing country header', () => {
+      const headers = new Headers({
+        'x-vercel-ip-city': 'Boston',
+      })
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('Boston')
+      expect(result.country).toBeUndefined()
+    })
+
+    it('should return undefined for both headers missing', () => {
+      const headers = new Headers()
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBeUndefined()
+      expect(result.country).toBeUndefined()
+    })
+
+    it('should handle malformed URI encoding gracefully', () => {
+      const headers = new Headers({
+        'x-vercel-ip-country': 'AR',
+        'x-vercel-ip-city': '%E0%A4%A',  // Invalid UTF-8 sequence
+      })
+      const result = getGeolocationFromHeaders(headers)
+      // Should return original value when decoding fails
+      expect(result.city).toBe('%E0%A4%A')
+      expect(result.country).toBe('AR')
+    })
+
+    it('should decode city names with multiple encoded characters', () => {
+      const headers = new Headers({
+        'x-vercel-ip-country': 'DE',
+        'x-vercel-ip-city': 'M%C3%BCnchen',  // München
+      })
+      const result = getGeolocationFromHeaders(headers)
+      expect(result.city).toBe('München')
     })
   })
 })

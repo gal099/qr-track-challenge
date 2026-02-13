@@ -185,3 +185,16 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing 404 handling for deleted QR code access
     - When creating E2E tests for QR code deletion workflows
     - When debugging issues with QR codes not disappearing after deletion
+
+- app_docs/feature-f9c10ae5-analytics-cache-fix.md
+  - Conditions:
+    - When troubleshooting analytics dashboard not reflecting database changes
+    - When working with Next.js App Router caching behavior
+    - When implementing or modifying the /api/qr/list route handler
+    - When debugging stale data issues in analytics dashboard
+    - When adding dynamic rendering configuration to route handlers
+    - When working with export const dynamic = 'force-dynamic' in Next.js
+    - When troubleshooting hard refresh not fetching fresh data
+    - When implementing cache disabling for API endpoints
+    - When debugging Next.js route handler caching
+    - When ensuring real-time data reflection in analytics views

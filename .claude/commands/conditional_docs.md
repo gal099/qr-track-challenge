@@ -111,3 +111,13 @@ This prompt helps you determine what documentation you should read based on the 
     - When adding or modifying color code displays
     - When improving button text contrast
     - When creating E2E tests for visual accessibility
+
+- app_docs/feature-48538fc4-dashboard-scan-count-fix.md
+  - Conditions:
+    - When troubleshooting scan count display issues in analytics dashboard
+    - When working with the getAllQRCodes() database function in src/lib/db.ts
+    - When debugging PostgreSQL COUNT() queries or BIGINT type handling
+    - When fixing data inconsistencies between dashboard list and detail views
+    - When implementing scan count aggregation with LEFT JOIN queries
+    - When working with node-postgres (pg) library type conversions
+    - When creating E2E tests for analytics data accuracy

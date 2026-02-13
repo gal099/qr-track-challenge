@@ -61,7 +61,7 @@ logs/
 
 # ADW state (internal, not committed)
 agents/
-specs/
+# specs/ - committed for challenge submission
 
 # IDE
 .vscode/

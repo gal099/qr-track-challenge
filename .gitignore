@@ -61,6 +61,7 @@ logs/
 
 # ADW state (internal, not committed)
 agents/
+trees/
 # specs/ - committed for challenge submission
 
 # IDE

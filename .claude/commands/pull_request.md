@@ -4,10 +4,10 @@ Based on the `Instructions` below, take the `Variables` follow the `Run` section
 
 ## Variables
 
-branch_name: $1
-issue: $2
-plan_file: $3
-adw_id: $4
+branch_name: $ARGUMENT
+issue: $ARGUMENT
+plan_file: $ARGUMENT
+adw_id: $ARGUMENT
 
 ## Instructions
 

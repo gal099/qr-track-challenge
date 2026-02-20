@@ -4,9 +4,9 @@ Based on the `Instructions` below, take the `Variables` follow the `Run` section
 
 ## Variables
 
-agent_name: $1
-issue_class: $2
-issue: $3
+agent_name: $ARGUMENT
+issue_class: $ARGUMENT
+issue: $ARGUMENT
 
 ## Instructions
 

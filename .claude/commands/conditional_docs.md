@@ -208,3 +208,13 @@ This prompt helps you determine what documentation you should read based on the 
     - When troubleshooting logo display or positioning issues
     - When implementing responsive images on the landing page
     - When creating E2E tests for visual branding elements
+
+- app_docs/bug-b9c63120-feature-card-spacing.md
+  - Conditions:
+    - When working with feature cards on the homepage landing page
+    - When fixing spacing or layout inconsistencies in card components
+    - When troubleshooting card height alignment issues
+    - When modifying Tailwind CSS classes for consistent spacing
+    - When implementing or debugging icon-to-heading spacing
+    - When working with the Features section in src/app/page.tsx
+    - When creating E2E tests for feature card layout validation

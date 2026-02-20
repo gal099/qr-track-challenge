@@ -198,3 +198,13 @@ This prompt helps you determine what documentation you should read based on the 
     - When implementing cache disabling for API endpoints
     - When debugging Next.js route handler caching
     - When ensuring real-time data reflection in analytics views
+
+- app_docs/feature-2a8b5aed-logo-main-screen.md
+  - Conditions:
+    - When working with the landing page logo or branding elements
+    - When implementing or modifying images on the main screen
+    - When working with Next.js Image component for static assets
+    - When adding or replacing brand assets in the public directory
+    - When troubleshooting logo display or positioning issues
+    - When implementing responsive images on the landing page
+    - When creating E2E tests for visual branding elements

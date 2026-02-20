@@ -303,6 +303,7 @@ def main():
 
     # Step 6: Automatic cleanup after successful ship
     repo_root = get_main_repo_root()
+    worktree_path = state.get("worktree_path")
     cleanup_messages = []
 
     # 6a. Delete remote branch
@@ -322,24 +323,6 @@ def main():
         logger.warning(f"⚠️ Failed to delete remote branch: {e}")
         cleanup_messages.append(f"⚠️ Remote branch deletion failed (not critical)")
 
-    # 6b. Clean up worktree
-    logger.info(f"Cleaning up: Removing worktree for {adw_id}...")
-    try:
-        purge_script = os.path.join(repo_root, "scripts", "purge_tree.sh")
-        result = subprocess.run(
-            [purge_script, adw_id],
-            capture_output=True, text=True, cwd=repo_root
-        )
-        if result.returncode == 0:
-            logger.info(f"✅ Cleaned up worktree: {adw_id}")
-            cleanup_messages.append(f"✅ Cleaned up worktree `trees/{adw_id}/`")
-        else:
-            logger.warning(f"⚠️ Failed to clean worktree: {result.stderr}")
-            cleanup_messages.append(f"⚠️ Worktree cleanup failed (not critical)")
-    except Exception as e:
-        logger.warning(f"⚠️ Failed to clean worktree: {e}")
-        cleanup_messages.append(f"⚠️ Worktree cleanup failed (not critical)")
-
     # Post cleanup status
     if cleanup_messages:
         cleanup_status = "\n".join(cleanup_messages)
@@ -347,7 +330,9 @@ def main():
             issue_number,
             format_issue_message(adw_id, AGENT_SHIPPER,
                                f"🧹 **Automatic cleanup:**\n\n{cleanup_status}\n\n"
-                               f"📝 Logs preserved in `agents/{adw_id}/`")
+                               f"📂 Worktree preserved at `{worktree_path}` for debugging\n"
+                               f"📝 Logs preserved in `agents/{adw_id}/`\n\n"
+                               f"To clean up worktree: `./scripts/purge_tree.sh {adw_id}`")
         )
         logger.info("Automatic cleanup completed")
 

@@ -58,8 +58,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="mb-4 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-              <div className="text-3xl">⚡</div>
+            <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+              <div className="mb-4 text-3xl">⚡</div>
               <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
                 Instant
               </h3>

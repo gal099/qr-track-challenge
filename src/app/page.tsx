@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import QRGenerator from '@/components/qr-generator/QRGenerator'
 
 export default function HomePage() {
@@ -8,6 +9,16 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl">
           {/* Header */}
           <div className="mb-12 text-center">
+            <div className="mb-6 flex justify-center">
+              <Image
+                src="/logo.svg"
+                alt="QR Track Logo"
+                width={120}
+                height={120}
+                priority
+                className="h-auto w-24 md:w-32"
+              />
+            </div>
             <h1 className="mb-4 text-5xl font-bold text-gray-900 dark:text-white">
               QR Track
             </h1>

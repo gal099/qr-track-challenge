@@ -293,14 +293,49 @@ def main():
     # Step 5: Post success message
     make_issue_comment(
         issue_number,
-        format_issue_message(adw_id, AGENT_SHIPPER, 
+        format_issue_message(adw_id, AGENT_SHIPPER,
                            f"🎉 **Successfully shipped!**\n\n"
                            f"✅ Validated all state fields\n"
                            f"✅ Merged branch `{branch_name}` to main\n"
                            f"✅ Pushed to origin/main\n\n"
                            f"🚢 Code has been deployed to production!")
     )
-    
+
+    # Step 6: Automatic cleanup after successful ship
+    repo_root = get_main_repo_root()
+    worktree_path = state.get("worktree_path")
+    cleanup_messages = []
+
+    # 6a. Delete remote branch
+    logger.info(f"Cleaning up: Deleting remote branch {branch_name}...")
+    try:
+        result = subprocess.run(
+            ["git", "push", "origin", "--delete", branch_name],
+            capture_output=True, text=True, cwd=repo_root
+        )
+        if result.returncode == 0:
+            logger.info(f"✅ Deleted remote branch: {branch_name}")
+            cleanup_messages.append(f"✅ Deleted remote branch `{branch_name}`")
+        else:
+            logger.warning(f"⚠️ Failed to delete remote branch: {result.stderr}")
+            cleanup_messages.append(f"⚠️ Remote branch deletion failed (not critical)")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to delete remote branch: {e}")
+        cleanup_messages.append(f"⚠️ Remote branch deletion failed (not critical)")
+
+    # Post cleanup status
+    if cleanup_messages:
+        cleanup_status = "\n".join(cleanup_messages)
+        make_issue_comment(
+            issue_number,
+            format_issue_message(adw_id, AGENT_SHIPPER,
+                               f"🧹 **Automatic cleanup:**\n\n{cleanup_status}\n\n"
+                               f"📂 Worktree preserved at `{worktree_path}` for debugging\n"
+                               f"📝 Logs preserved in `agents/{adw_id}/`\n\n"
+                               f"To clean up worktree: `./scripts/purge_tree.sh {adw_id}`")
+        )
+        logger.info("Automatic cleanup completed")
+
     # Save final state
     state.save("adw_ship_iso")
     
